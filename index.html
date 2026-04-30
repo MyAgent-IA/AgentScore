@@ -944,12 +944,181 @@
     L'IA analyse ta boutique Shopify et révèle exactement ce qui fait fuir tes clients — SAV, avis, retours, automatisation.
   </p>
 
-  <div class="hero-input-wrap">
-    <input class="hero-input" type="text" placeholder="https://ta-boutique.com" />
-    <button class="hero-btn">ANALYSER →</button>
+  <div class="hero-input-wrap" id="main-input-wrap">
+    <input class="hero-input" id="shop-url" type="text" placeholder="https://ta-boutique.com" />
+    <button class="hero-btn" id="analyze-btn" onclick="startAnalysis()">ANALYSER →</button>
   </div>
 
   <p class="hero-disclaimer">Gratuit · Aucune carte requise · Résultat immédiat</p>
+
+  <!-- LOADING STATE -->
+  <div id="loading-state" style="display:none;margin-top:24px;text-align:center;">
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;">
+      <div class="loader-dot"></div>
+      <div class="loader-dot" style="animation-delay:0.2s"></div>
+      <div class="loader-dot" style="animation-delay:0.4s"></div>
+    </div>
+    <p id="loading-msg" style="font-size:14px;color:var(--text2);">Analyse en cours...</p>
+  </div>
+
+  <!-- RESULT CARD -->
+  <div id="result-card" style="display:none;width:100%;max-width:620px;margin-top:32px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;text-align:left;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2),transparent);"></div>
+
+    <div id="result-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:36px;height:36px;background:var(--surface2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;border:1px solid var(--border);">🏪</div>
+        <div>
+          <div id="result-domain" style="font-weight:500;font-size:14px;">—</div>
+          <div style="font-size:11px;color:var(--text3);">Analyse IA · AgentScore</div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div id="result-score-num" style="font-family:'Syne',sans-serif;font-size:44px;font-weight:800;line-height:1;letter-spacing:-2px;">—</div>
+        <div id="result-score-label" style="font-size:11px;color:var(--text3);margin-top:2px;">/ 100</div>
+      </div>
+    </div>
+
+    <div id="result-bars" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;"></div>
+
+    <div id="result-reco" style="background:rgba(255,77,28,0.06);border:1px solid rgba(255,77,28,0.15);border-radius:10px;padding:16px 18px;">
+      <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Points clés détectés</div>
+      <div id="result-reco-items"></div>
+    </div>
+
+    <div id="result-myagent" style="display:none;margin-top:14px;" class="myagent-bridge">
+      <div class="myagent-bridge-left">
+        <div class="myagent-logo-badge">🤖</div>
+        <div>
+          <div class="myagent-bridge-text">Recommandation IA · SAV critique</div>
+          <div class="myagent-bridge-desc">Ton SAV est en rouge. MyAgent peut répondre à tes emails en moins d'1 min, 24h/24.</div>
+        </div>
+      </div>
+      <div class="myagent-bridge-right">
+        <a href="https://myagentia.fr" target="_blank" class="myagent-cta-btn" style="text-decoration:none;">Réparer mon SAV →</a>
+        <div class="myagent-savings"><span class="savings-pill">−20% avec AgentScore</span></div>
+      </div>
+    </div>
+  </div>
+
+<style>
+.loader-dot {
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: bounce 0.8s infinite alternate;
+}
+@keyframes bounce {
+  from { transform: translateY(0); opacity: 0.4; }
+  to { transform: translateY(-8px); opacity: 1; }
+}
+</style>
+
+<script>
+const LOADING_MSGS = [
+  "Inspection de la page d'accueil...",
+  "Analyse des avis clients...",
+  "Vérification de la politique SAV...",
+  "Calcul du score en cours...",
+  "Finalisation du rapport..."
+];
+
+async function startAnalysis() {
+  const url = document.getElementById('shop-url').value.trim();
+  if (!url) {
+    document.getElementById('shop-url').focus();
+    return;
+  }
+
+  // UI loading
+  document.getElementById('analyze-btn').disabled = true;
+  document.getElementById('analyze-btn').textContent = 'Analyse...';
+  document.getElementById('result-card').style.display = 'none';
+  document.getElementById('loading-state').style.display = 'block';
+
+  // Cycle loading messages
+  let msgIdx = 0;
+  const msgEl = document.getElementById('loading-msg');
+  msgEl.textContent = LOADING_MSGS[0];
+  const msgInterval = setInterval(() => {
+    msgIdx = (msgIdx + 1) % LOADING_MSGS.length;
+    msgEl.textContent = LOADING_MSGS[msgIdx];
+  }, 2200);
+
+  try {
+    const response = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+
+    const result = await response.json();
+    clearInterval(msgInterval);
+    displayResult(url, result);
+  } catch (err) {
+    clearInterval(msgInterval);
+    msgEl.textContent = "Erreur d'analyse. Vérifie l'URL et réessaie.";
+    document.getElementById('analyze-btn').disabled = false;
+    document.getElementById('analyze-btn').textContent = 'ANALYSER →';
+  }
+}
+
+function displayResult(url, r) {
+  document.getElementById('loading-state').style.display = 'none';
+
+  // Domain
+  let domain = url.replace(/https?:\/\//, '').split('/')[0];
+  document.getElementById('result-domain').textContent = domain;
+
+  // Score
+  const colors = { red: '#FF4D4D', amber: '#F5A623', green: '#1DDB8B' };
+  const scoreEl = document.getElementById('result-score-num');
+  scoreEl.textContent = r.score_global;
+  scoreEl.style.color = colors[r.couleur_globale] || '#F5A623';
+
+  const labels = { red: '/ 100 · À améliorer', amber: '/ 100 · Moyen', green: '/ 100 · Bon score' };
+  document.getElementById('result-score-label').textContent = labels[r.couleur_globale] || '/ 100';
+
+  // Bars
+  const barsEl = document.getElementById('result-bars');
+  barsEl.innerHTML = r.dimensions.map(d => `
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-size:12px;color:var(--text2);">${d.emoji} ${d.nom}</span>
+        <span style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:${colors[d.couleur]}">${d.score}</span>
+      </div>
+      <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+        <div style="height:100%;width:${d.score}%;background:${colors[d.couleur]};border-radius:2px;"></div>
+      </div>
+    </div>
+  `).join('');
+
+  // Reco items
+  const recoEl = document.getElementById('result-reco-items');
+  recoEl.innerHTML = r.points_cles.map((p, i) => `
+    <div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,77,28,0.08);font-size:13px;color:var(--text2);">
+      <div style="width:18px;height:18px;background:rgba(255,77,28,0.15);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--accent);flex-shrink:0;margin-top:1px;">${i+1}</div>
+      <span>${p}</span>
+    </div>
+  `).join('');
+
+  // MyAgent bridge si SAV critique
+  const savDim = r.dimensions.find(d => d.nom.includes('SAV'));
+  if (r.sav_critique || (savDim && savDim.score < 55)) {
+    document.getElementById('result-myagent').style.display = 'flex';
+  }
+
+  document.getElementById('result-card').style.display = 'block';
+  document.getElementById('result-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  document.getElementById('analyze-btn').disabled = false;
+  document.getElementById('analyze-btn').textContent = 'ANALYSER →';
+}
+
+document.getElementById('shop-url').addEventListener('keydown', e => {
+  if (e.key === 'Enter') startAnalysis();
+});
+</script>
 
   <div class="social-proof">
     <div class="sp-item">
@@ -1232,7 +1401,7 @@
   <div class="cta-box">
     <h2>Ton score t'attend.<br>Gratuit, en 60 secondes.</h2>
     <p>Rejoins 1 240 marchands qui ont déjà découvert ce qui freine leur boutique.</p>
-    <button class="cta-big-btn">ANALYSER MA BOUTIQUE →</button>
+    <button class="cta-big-btn" onclick="document.getElementById('shop-url').scrollIntoView({behavior:'smooth'});setTimeout(()=>document.getElementById('shop-url').focus(),600);">ANALYSER MA BOUTIQUE →</button>
     <p class="cta-note">Aucune carte requise · Résultat immédiat · 100% gratuit</p>
   </div>
 </section>
