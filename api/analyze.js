@@ -18,7 +18,7 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-3-5-sonnet-20241022',
         max_tokens: 1000,
         system: `Tu es AgentScore, un outil d'analyse IA pour boutiques e-commerce.
 Analyse l'URL fournie et génère un score réaliste basé sur ce que tu sais des e-commerçants typiques et sur l'URL elle-même.
