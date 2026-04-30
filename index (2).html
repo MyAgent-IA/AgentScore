@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0A0A0F;
+    --surface: #111118;
+    --surface2: #18181F;
+    --border: rgba(255,255,255,0.07);
+    --accent: #FF4D1C;
+    --accent2: #FF8C5A;
+    --text: #F0EDE8;
+    --text2: rgba(240,237,232,0.55);
+    --text3: rgba(240,237,232,0.3);
+    --green: #1DDB8B;
+    --amber: #F5A623;
+    --red: #FF4D4D;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(10,10,15,0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.8); }
+  }
+
+  .nav-cta {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .nav-cta:hover { background: var(--accent2); transform: translateY(-1px); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 40px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(255,77,28,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-glow2 {
+    position: absolute;
+    bottom: 10%;
+    left: 20%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(ellipse, rgba(29,219,139,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid rgba(255,77,28,0.3);
+    background: rgba(255,77,28,0.08);
+    color: var(--accent2);
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 28px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .badge-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(42px, 6vw, 80px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .hero h1 .accent { color: var(--accent); }
+  .hero h1 .underline-anim {
+    position: relative;
+    display: inline-block;
+  }
+  .hero h1 .underline-anim::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--accent);
+    border-radius: 2px;
+    animation: lineIn 0.8s 0.8s ease both;
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+
+  @keyframes lineIn { to { transform: scaleX(1); } }
+
+  .hero-sub {
+    font-size: 18px;
+    color: var(--text2);
+    max-width: 520px;
+    margin: 0 auto 40px;
+    font-weight: 300;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .hero-input-wrap {
+    display: flex;
+    gap: 0;
+    max-width: 480px;
+    width: 100%;
+    margin: 0 auto 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,77,28,0.3);
+    overflow: hidden;
+    background: var(--surface);
+    animation: fadeUp 0.6s 0.3s ease both;
+    transition: border-color 0.2s;
+  }
+
+  .hero-input-wrap:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(255,77,28,0.1);
+  }
+
+  .hero-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 14px 18px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    outline: none;
+  }
+
+  .hero-input::placeholder { color: var(--text3); }
+
+  .hero-btn {
+    background: var(--accent);
+    border: none;
+    padding: 14px 22px;
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+    letter-spacing: 0.3px;
+  }
+
+  .hero-btn:hover { background: var(--accent2); }
+
+  .hero-disclaimer {
+    font-size: 12px;
+    color: var(--text3);
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SOCIAL PROOF */
+  .social-proof {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 48px;
+    padding-top: 48px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+    animation: fadeUp 0.6s 0.5s ease both;
+  }
+
+  .sp-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text2);
+  }
+
+  .sp-icon { font-size: 16px; }
+  .sp-num { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--text); }
+
+  /* SCORE DEMO */
+  .demo-section {
+    padding: 80px 40px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700;
+    letter-spacing: -1px;
+    text-align: center;
+    margin-bottom: 56px;
+    line-height: 1.1;
+  }
+
+  .demo-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .demo-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
+  }
+
+  .demo-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .demo-shop {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .demo-shop-logo {
+    width: 40px; height: 40px;
+    background: var(--surface2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .demo-shop-name { font-weight: 500; font-size: 15px; }
+  .demo-shop-url { font-size: 12px; color: var(--text3); }
+
+  .score-big {
+    text-align: right;
+  }
+
+  .score-num-big {
+    font-family: 'Syne', sans-serif;
+    font-size: 52px;
+    font-weight: 800;
+    color: var(--amber);
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+
+  .score-label-big { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .metric-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  .metric-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .metric-name { font-size: 13px; color: var(--text2); }
+
+  .metric-score {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .score-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .score-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 1.5s ease;
+  }
+
+  .reco-box {
+    background: rgba(255,77,28,0.06);
+    border: 1px solid rgba(255,77,28,0.15);
+    border-radius: 10px;
+    padding: 16px 20px;
+  }
+
+  .reco-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .reco-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,77,28,0.08);
+    font-size: 13px;
+    color: var(--text2);
+  }
+
+  .reco-item:last-child { border-bottom: none; }
+
+  /* MYAGENT BRIDGE CARD */
+  .myagent-bridge {
+    margin-top: 16px;
+    background: linear-gradient(135deg, rgba(26,63,255,0.08), rgba(26,63,255,0.03));
+    border: 1px solid rgba(26,63,255,0.25);
+    border-radius: 10px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .myagent-bridge-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .myagent-logo-badge {
+    width: 36px; height: 36px;
+    background: rgba(26,63,255,0.15);
+    border-radius: 8px;
+    border: 1px solid rgba(26,63,255,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .myagent-bridge-text {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #818cf8;
+    margin-bottom: 3px;
+  }
+
+  .myagent-bridge-desc {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.4;
+  }
+
+  .myagent-bridge-desc strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .myagent-bridge-right {
+    flex-shrink: 0;
+  }
+
+  .myagent-cta-btn {
+    background: rgba(26,63,255,0.9);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 7px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    letter-spacing: 0.2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .myagent-cta-btn:hover {
+    background: rgba(26,63,255,1);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(26,63,255,0.3);
+  }
+
+  .myagent-savings {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    justify-content: flex-end;
+  }
+
+  .savings-pill {
+    font-size: 11px;
+    color: var(--green);
+    background: rgba(29,219,139,0.08);
+    border: 1px solid rgba(29,219,139,0.2);
+    border-radius: 100px;
+    padding: 2px 8px;
+    font-weight: 600;
+  }
+
+  .reco-num {
+    width: 20px; height: 20px;
+    background: rgba(255,77,28,0.15);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .locked-overlay {
+    position: relative;
+    filter: blur(4px);
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .lock-badge {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: none;
+    z-index: 2;
+  }
+
+  .lock-pill {
+    background: var(--surface);
+    border: 1px solid rgba(255,77,28,0.3);
+    color: var(--accent2);
+    padding: 8px 18px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* HOW IT WORKS */
+  .how-section {
+    padding: 80px 40px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    position: relative;
+  }
+
+  .steps::before {
+    content: '';
+    position: absolute;
+    top: 28px;
+    left: 16%;
+    right: 16%;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), var(--border), var(--accent));
+  }
+
+  .step-card {
+    text-align: center;
+    padding: 28px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    position: relative;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .step-card:hover {
+    border-color: rgba(255,77,28,0.3);
+    transform: translateY(-4px);
+  }
+
+  .step-icon {
+    width: 56px; height: 56px;
+    background: var(--surface2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin: 0 auto 16px;
+    border: 2px solid var(--border);
+  }
+
+  .step-num-badge {
+    position: absolute;
+    top: -10px; right: -10px;
+    width: 24px; height: 24px;
+    background: var(--accent);
+    border-radius: 50%;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  .step-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .step-card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+  /* PRICING */
+  .pricing-section {
+    padding: 80px 40px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .price-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 24px;
+    transition: transform 0.2s;
+  }
+
+  .price-card:hover { transform: translateY(-4px); }
+
+  .price-card.featured {
+    border-color: var(--accent);
+    background: linear-gradient(135deg, rgba(255,77,28,0.08), var(--surface));
+    position: relative;
+  }
+
+  .featured-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 14px;
+    border-radius: 100px;
+    white-space: nowrap;
+    font-family: 'Syne', sans-serif;
+    letter-spacing: 0.05em;
+  }
+
+  .price-name {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 12px;
+  }
+
+  .price-amount {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 4px;
+  }
+
+  .price-period { font-size: 13px; color: var(--text3); margin-bottom: 20px; }
+
+  .price-features { list-style: none; margin-bottom: 24px; }
+
+  .price-features li {
+    font-size: 13px;
+    color: var(--text2);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .price-features li:last-child { border-bottom: none; }
+  .price-features li::before { content: '→'; color: var(--accent); font-size: 12px; flex-shrink: 0; }
+
+  .price-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+
+  .price-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .price-btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  .price-btn.primary:hover { background: var(--accent2); border-color: var(--accent2); }
+
+  /* TESTIMONIALS */
+  .testi-section {
+    padding: 80px 40px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .testi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .testi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    transition: border-color 0.2s;
+  }
+
+  .testi-card:hover { border-color: rgba(255,77,28,0.2); }
+
+  .testi-stars { color: var(--accent); font-size: 14px; margin-bottom: 12px; letter-spacing: 2px; }
+
+  .testi-text {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.7;
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+
+  .testi-author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .testi-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    border: 1px solid var(--border);
+  }
+
+  .testi-name { font-size: 13px; font-weight: 500; }
+  .testi-role { font-size: 11px; color: var(--text3); }
+
+  /* CTA FINAL */
+  .cta-section {
+    padding: 80px 40px 120px;
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .cta-box {
+    background: var(--surface);
+    border: 1px solid rgba(255,77,28,0.2);
+    border-radius: 20px;
+    padding: 56px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(255,77,28,0.1), transparent 60%);
+  }
+
+  .cta-box h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cta-box p {
+    font-size: 16px;
+    color: var(--text2);
+    margin-bottom: 32px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cta-big-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 18px 40px;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+    position: relative;
+    z-index: 1;
+    display: inline-block;
+  }
+
+  .cta-big-btn:hover {
+    background: var(--accent2);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(255,77,28,0.3);
+  }
+
+  .cta-note {
+    font-size: 12px;
+    color: var(--text3);
+    margin-top: 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 32px 40px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--text2);
+  }
+
+  .footer-copy { font-size: 12px; color: var(--text3); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .hero { padding: 100px 20px 60px; }
+    .steps { grid-template-columns: 1fr; }
+    .steps::before { display: none; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .testi-grid { grid-template-columns: 1fr; }
+    .metrics-grid { grid-template-columns: 1fr; }
+    .demo-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+    footer { flex-direction: column; gap: 8px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    AgentScore
+  </div>
+  <a href="#pricing" class="nav-cta">Tester gratuitement →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+
+  <div class="badge">
+    <div class="badge-dot"></div>
+    Analyse IA — Résultat en 60 secondes
+  </div>
+
+  <h1>
+    Ton score<br>
+    <span class="underline-anim">e-commerce</span><br>
+    en <span class="accent">60 secondes</span>
+  </h1>
+
+  <p class="hero-sub">
+    L'IA analyse ta boutique Shopify et révèle exactement ce qui fait fuir tes clients — SAV, avis, retours, automatisation.
+  </p>
+
+  <div class="hero-input-wrap" id="main-input-wrap">
+    <input class="hero-input" id="shop-url" type="text" placeholder="https://ta-boutique.com" />
+    <button class="hero-btn" id="analyze-btn" onclick="startAnalysis()">ANALYSER →</button>
+  </div>
+
+  <p class="hero-disclaimer">Gratuit · Aucune carte requise · Résultat immédiat</p>
+
+  <!-- LOADING STATE -->
+  <div id="loading-state" style="display:none;margin-top:24px;text-align:center;">
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;">
+      <div class="loader-dot"></div>
+      <div class="loader-dot" style="animation-delay:0.2s"></div>
+      <div class="loader-dot" style="animation-delay:0.4s"></div>
+    </div>
+    <p id="loading-msg" style="font-size:14px;color:var(--text2);">Analyse en cours...</p>
+  </div>
+
+  <!-- RESULT CARD -->
+  <div id="result-card" style="display:none;width:100%;max-width:620px;margin-top:32px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;text-align:left;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2),transparent);"></div>
+
+    <div id="result-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:36px;height:36px;background:var(--surface2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;border:1px solid var(--border);">🏪</div>
+        <div>
+          <div id="result-domain" style="font-weight:500;font-size:14px;">—</div>
+          <div style="font-size:11px;color:var(--text3);">Analyse IA · AgentScore</div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div id="result-score-num" style="font-family:'Syne',sans-serif;font-size:44px;font-weight:800;line-height:1;letter-spacing:-2px;">—</div>
+        <div id="result-score-label" style="font-size:11px;color:var(--text3);margin-top:2px;">/ 100</div>
+      </div>
+    </div>
+
+    <div id="result-bars" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;"></div>
+
+    <div id="result-reco" style="background:rgba(255,77,28,0.06);border:1px solid rgba(255,77,28,0.15);border-radius:10px;padding:16px 18px;">
+      <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">Points clés détectés</div>
+      <div id="result-reco-items"></div>
+    </div>
+
+    <div id="result-myagent" style="display:none;margin-top:14px;" class="myagent-bridge">
+      <div class="myagent-bridge-left">
+        <div class="myagent-logo-badge">🤖</div>
+        <div>
+          <div class="myagent-bridge-text">Recommandation IA · SAV critique</div>
+          <div class="myagent-bridge-desc">Ton SAV est en rouge. MyAgent peut répondre à tes emails en moins d'1 min, 24h/24.</div>
+        </div>
+      </div>
+      <div class="myagent-bridge-right">
+        <a href="https://myagentia.fr" target="_blank" class="myagent-cta-btn" style="text-decoration:none;">Réparer mon SAV →</a>
+        <div class="myagent-savings"><span class="savings-pill">−20% avec AgentScore</span></div>
+      </div>
+    </div>
+  </div>
+
+<style>
+.loader-dot {
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: bounce 0.8s infinite alternate;
+}
+@keyframes bounce {
+  from { transform: translateY(0); opacity: 0.4; }
+  to { transform: translateY(-8px); opacity: 1; }
+}
+</style>
+
+<script>
+const LOADING_MSGS = [
+  "Inspection de la page d'accueil...",
+  "Analyse des avis clients...",
+  "Vérification de la politique SAV...",
+  "Calcul du score en cours...",
+  "Finalisation du rapport..."
+];
+
+async function startAnalysis() {
+  const url = document.getElementById('shop-url').value.trim();
+  if (!url) {
+    document.getElementById('shop-url').focus();
+    return;
+  }
+
+  // UI loading
+  document.getElementById('analyze-btn').disabled = true;
+  document.getElementById('analyze-btn').textContent = 'Analyse...';
+  document.getElementById('result-card').style.display = 'none';
+  document.getElementById('loading-state').style.display = 'block';
+
+  // Cycle loading messages
+  let msgIdx = 0;
+  const msgEl = document.getElementById('loading-msg');
+  msgEl.textContent = LOADING_MSGS[0];
+  const msgInterval = setInterval(() => {
+    msgIdx = (msgIdx + 1) % LOADING_MSGS.length;
+    msgEl.textContent = LOADING_MSGS[msgIdx];
+  }, 2200);
+
+  try {
+    const response = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+
+    const result = await response.json();
+    clearInterval(msgInterval);
+    displayResult(url, result);
+  } catch (err) {
+    clearInterval(msgInterval);
+    msgEl.textContent = "Erreur d'analyse. Vérifie l'URL et réessaie.";
+    document.getElementById('analyze-btn').disabled = false;
+    document.getElementById('analyze-btn').textContent = 'ANALYSER →';
+  }
+}
+
+function displayResult(url, r) {
+  document.getElementById('loading-state').style.display = 'none';
+
+  // Domain
+  let domain = url.replace(/https?:\/\//, '').split('/')[0];
+  document.getElementById('result-domain').textContent = domain;
+
+  // Score
+  const colors = { red: '#FF4D4D', amber: '#F5A623', green: '#1DDB8B' };
+  const scoreEl = document.getElementById('result-score-num');
+  scoreEl.textContent = r.score_global;
+  scoreEl.style.color = colors[r.couleur_globale] || '#F5A623';
+
+  const labels = { red: '/ 100 · À améliorer', amber: '/ 100 · Moyen', green: '/ 100 · Bon score' };
+  document.getElementById('result-score-label').textContent = labels[r.couleur_globale] || '/ 100';
+
+  // Bars
+  const barsEl = document.getElementById('result-bars');
+  barsEl.innerHTML = r.dimensions.map(d => `
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-size:12px;color:var(--text2);">${d.emoji} ${d.nom}</span>
+        <span style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:${colors[d.couleur]}">${d.score}</span>
+      </div>
+      <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+        <div style="height:100%;width:${d.score}%;background:${colors[d.couleur]};border-radius:2px;"></div>
+      </div>
+    </div>
+  `).join('');
+
+  // Reco items
+  const recoEl = document.getElementById('result-reco-items');
+  recoEl.innerHTML = r.points_cles.map((p, i) => `
+    <div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,77,28,0.08);font-size:13px;color:var(--text2);">
+      <div style="width:18px;height:18px;background:rgba(255,77,28,0.15);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--accent);flex-shrink:0;margin-top:1px;">${i+1}</div>
+      <span>${p}</span>
+    </div>
+  `).join('');
+
+  // MyAgent bridge si SAV critique
+  const savDim = r.dimensions.find(d => d.nom.includes('SAV'));
+  if (r.sav_critique || (savDim && savDim.score < 55)) {
+    document.getElementById('result-myagent').style.display = 'flex';
+  }
+
+  document.getElementById('result-card').style.display = 'block';
+  document.getElementById('result-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  document.getElementById('analyze-btn').disabled = false;
+  document.getElementById('analyze-btn').textContent = 'ANALYSER →';
+}
+
+document.getElementById('shop-url').addEventListener('keydown', e => {
+  if (e.key === 'Enter') startAnalysis();
+});
+</script>
+
+  <div class="social-proof">
+    <div class="sp-item">
+      <span class="sp-icon">🏪</span>
+      <span><span class="sp-num">1 240</span> boutiques analysées</span>
+    </div>
+    <div class="sp-item">
+      <span class="sp-icon">⚡</span>
+      <span>Score moyen amélioré de <span class="sp-num">+23 pts</span> en 60 jours</span>
+    </div>
+    <div class="sp-item">
+      <span class="sp-icon">🇫🇷</span>
+      <span>Made in France</span>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO SCORE -->
+<section class="demo-section">
+  <div class="section-label">Exemple de rapport</div>
+  <h2 class="section-title">Ce que tu vas découvrir<br>sur ta boutique</h2>
+
+  <div class="demo-card">
+    <div class="demo-header">
+      <div class="demo-shop">
+        <div class="demo-shop-logo">👟</div>
+        <div>
+          <div class="demo-shop-name">SneakersDrop.fr</div>
+          <div class="demo-shop-url">sneakersdrop.fr · Shopify · 320 cmd/mois</div>
+        </div>
+      </div>
+      <div class="score-big">
+        <div class="score-num-big">61</div>
+        <div class="score-label-big">/ 100 · À améliorer</div>
+      </div>
+    </div>
+
+    <div class="metrics-grid">
+      <div class="metric-item">
+        <div class="metric-top">
+          <span class="metric-name">⚡ SAV & réactivité</span>
+          <span class="metric-score" style="color:var(--red)">48</span>
+        </div>
+        <div class="score-bar">
+          <div class="score-fill" style="width:48%;background:var(--red)"></div>
+        </div>
+      </div>
+      <div class="metric-item">
+        <div class="metric-top">
+          <span class="metric-name">📦 Gestion retours</span>
+          <span class="metric-score" style="color:var(--amber)">72</span>
+        </div>
+        <div class="score-bar">
+          <div class="score-fill" style="width:72%;background:var(--amber)"></div>
+        </div>
+      </div>
+      <div class="metric-item">
+        <div class="metric-top">
+          <span class="metric-name">⭐ Avis clients</span>
+          <span class="metric-score" style="color:var(--red)">55</span>
+        </div>
+        <div class="score-bar">
+          <div class="score-fill" style="width:55%;background:var(--red)"></div>
+        </div>
+      </div>
+      <div class="metric-item" style="position:relative">
+        <div class="locked-overlay">
+          <div class="metric-top">
+            <span class="metric-name">🤖 Automatisation</span>
+            <span class="metric-score" style="color:var(--green)">88</span>
+          </div>
+          <div class="score-bar">
+            <div class="score-fill" style="width:88%;background:var(--green)"></div>
+          </div>
+        </div>
+        <div class="lock-badge">
+          <div class="lock-pill">🔒 Débloquer pour 1€</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reco-box" style="position:relative">
+      <div class="reco-title">Plan d'action prioritaire</div>
+      <div class="reco-item">
+        <div class="reco-num">1</div>
+        <span>Ton délai de réponse SAV moyen est de 38h — la norme attendue est sous 4h</span>
+      </div>
+      <div class="reco-item">
+        <div class="reco-num">2</div>
+        <span>23% de tes avis négatifs n'ont jamais reçu de réponse publique</span>
+      </div>
+      <div style="position:relative;filter:blur(5px);user-select:none">
+        <div class="reco-item">
+          <div class="reco-num">3</div>
+          <span>Tu perds ~12 commandes/mois sur l'absence de confirmation automatique</span>
+        </div>
+        <div class="reco-item">
+          <div class="reco-num">4</div>
+          <span>Ton processus de retour manuel coûte en moyenne 4€/retour</span>
+        </div>
+      </div>
+      <div style="position:absolute;bottom:12px;left:0;right:0;display:flex;justify-content:center;">
+        <div class="lock-pill" style="background:var(--surface);border:1px solid rgba(255,77,28,0.3);color:var(--accent2);padding:8px 18px;border-radius:100px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px;">
+          🔒 Voir les 3 autres recommandations — 1€
+        </div>
+      </div>
+    </div>
+
+    <!-- MYAGENT BRIDGE — s'affiche car score SAV = rouge -->
+    <div class="myagent-bridge">
+      <div class="myagent-bridge-left">
+        <div class="myagent-logo-badge">🤖</div>
+        <div>
+          <div class="myagent-bridge-text">Recommandation IA · SAV critique</div>
+          <div class="myagent-bridge-desc">Ton score SAV de <strong>48/100</strong> te coûte ~<strong>340€/mois</strong> en clients perdus. MyAgent répond à tes emails en moins d'1 min, 24h/24.</div>
+        </div>
+      </div>
+      <div class="myagent-bridge-right">
+        <a href="https://myagentia.fr" target="_blank" class="myagent-cta-btn" style="text-decoration:none;">Réparer mon SAV →</a>
+        <div class="myagent-savings">
+          <span class="savings-pill">−20% avec AgentScore</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section">
+  <div class="section-label">Comment ça marche</div>
+  <h2 class="section-title">3 étapes, 60 secondes</h2>
+
+  <div class="steps">
+    <div class="step-card">
+      <div class="step-num-badge">1</div>
+      <div class="step-icon">🌐</div>
+      <h3>Colle ton URL</h3>
+      <p>Entre l'adresse de ta boutique Shopify. Aucun accès, aucun plugin requis.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num-badge">2</div>
+      <div class="step-icon">🧠</div>
+      <h3>L'IA analyse</h3>
+      <p>Notre IA scanne ton SAV, tes avis, tes délais et tes automatisations en temps réel.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num-badge">3</div>
+      <div class="step-icon">🎯</div>
+      <h3>Ton plan d'action</h3>
+      <p>Tu reçois un score sur 100 et un plan priorisé pour l'améliorer cette semaine.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testi-section">
+  <div class="section-label">Ils ont amélioré leur score</div>
+  <h2 class="section-title">Ce qu'ils en disent</h2>
+
+  <div class="testi-grid">
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"J'avais aucune idée que mon délai SAV faisait fuir autant de clients. En 2 semaines j'ai automatisé les réponses et mon score est passé de 54 à 79."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">🧑</div>
+        <div>
+          <div class="testi-name">Thomas R.</div>
+          <div class="testi-role">Fondateur · ModeShop.fr</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"Le rapport m'a montré que 30% de mes avis négatifs étaient sans réponse. Une heure plus tard c'était réglé. Simple et brutal."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">👩</div>
+        <div>
+          <div class="testi-name">Laura M.</div>
+          <div class="testi-role">CEO · BioBeauty Paris</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"En 60 secondes j'ai eu plus d'insights qu'en 6 mois à regarder mes stats Shopify. Le plan d'action est direct et actionnable."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">🧔</div>
+        <div>
+          <div class="testi-name">Karim B.</div>
+          <div class="testi-role">E-commerçant · TechCase.fr</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AGENTSCORE x MYAGENT -->
+<section style="padding:80px 40px;max-width:900px;margin:0 auto;">
+  <div class="section-label">AgentScore × MyAgent</div>
+  <h2 class="section-title">Diagnostiquer. Corriger.<br>Tout en un.</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:32px;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2),transparent);"></div>
+      <div style="font-size:28px;margin-bottom:12px;">🔍</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:17px;margin-bottom:8px;">AgentScore détecte</div>
+      <div style="font-size:14px;color:var(--text2);line-height:1.6;">L'IA analyse ta boutique et te donne un score précis sur 4 dimensions — dont ton SAV. Si le score est rouge, tu sais exactement pourquoi.</div>
+    </div>
+    <div style="background:linear-gradient(135deg,rgba(26,63,255,0.08),rgba(26,63,255,0.03));border:1px solid rgba(26,63,255,0.25);border-radius:14px;padding:28px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,rgba(26,63,255,0.8),rgba(26,63,255,0.2),transparent);"></div>
+      <div style="font-size:28px;margin-bottom:12px;">🤖</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:17px;margin-bottom:8px;color:#818cf8;">MyAgent corrige</div>
+      <div style="font-size:14px;color:var(--text2);line-height:1.6;">Si ton SAV est en rouge, MyAgent prend le relais : il répond à tes emails clients en moins d'1 minute, 24h/24, avec le ton de ta boutique.</div>
+    </div>
+  </div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:20px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="font-size:22px;">⚡</div>
+      <div>
+        <div style="font-weight:600;font-size:15px;">Accès MyAgent inclus dans le plan Growth</div>
+        <div style="font-size:13px;color:var(--text3);margin-top:2px;">−20% à vie sur MyAgent si tu passes par AgentScore</div>
+      </div>
+    </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <a href="https://myagentia.fr" target="_blank" style="background:rgba(26,63,255,0.9);color:white;text-decoration:none;padding:11px 22px;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;white-space:nowrap;" onmouseover="this.style.background='rgba(26,63,255,1)'" onmouseout="this.style.background='rgba(26,63,255,0.9)'">Découvrir MyAgent →</a>
+        <a href="#pricing" style="background:var(--accent);color:white;text-decoration:none;padding:11px 22px;border-radius:7px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;white-space:nowrap;transition:all 0.2s;" onmouseover="this.style.background='#FF8C5A'" onmouseout="this.style.background='var(--accent)'">Voir les plans →</a>
+      </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="pricing">
+  <div class="section-label">Tarifs</div>
+  <h2 class="section-title">Simple et sans surprise</h2>
+
+  <div class="pricing-grid">
+    <div class="price-card">
+      <div class="price-name">Starter</div>
+      <div class="price-amount">1€</div>
+      <div class="price-period">puis 29€/mois après 7 jours</div>
+      <ul class="price-features">
+        <li>1 boutique</li>
+        <li>Score complet sur 4 dimensions</li>
+        <li>Monitoring mensuel</li>
+        <li>Alertes email</li>
+      </ul>
+      <button class="price-btn">Commencer →</button>
+    </div>
+    <div class="price-card featured">
+      <div class="featured-badge">LE PLUS POPULAIRE</div>
+      <div class="price-name">Growth</div>
+      <div class="price-amount" style="color:var(--accent)">39€</div>
+      <div class="price-period">/ mois · essai 7 jours à 1€</div>
+      <ul class="price-features">
+        <li>1 boutique</li>
+        <li>Rapport + plan d'action IA</li>
+        <li>Monitoring hebdomadaire</li>
+        <li>Benchmark concurrents</li>
+        <li>Accès MyAgent SAV — <strong style="color:var(--accent2)">−20% à vie</strong></li>
+      </ul>
+      <button class="price-btn primary">Débloquer pour 1€ →</button>
+    </div>
+    <div class="price-card">
+      <div class="price-name">Scale</div>
+      <div class="price-amount">89€</div>
+      <div class="price-period">/ mois</div>
+      <ul class="price-features">
+        <li>Jusqu'à 5 boutiques</li>
+        <li>Tout Growth inclus</li>
+        <li>Score comparatif multi-sites</li>
+        <li>Export PDF white-label</li>
+        <li>Support prioritaire</li>
+      </ul>
+      <button class="price-btn">Choisir Scale →</button>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-section">
+  <div class="cta-box">
+    <h2>Ton score t'attend.<br>Gratuit, en 60 secondes.</h2>
+    <p>Rejoins 1 240 marchands qui ont déjà découvert ce qui freine leur boutique.</p>
+    <button class="cta-big-btn" onclick="document.getElementById('shop-url').scrollIntoView({behavior:'smooth'});setTimeout(()=>document.getElementById('shop-url').focus(),600);">ANALYSER MA BOUTIQUE →</button>
+    <p class="cta-note">Aucune carte requise · Résultat immédiat · 100% gratuit</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">AgentScore ·</div>
+  <div class="footer-copy">© 2026 MyAgent · Mentions légales · CGV</div>
+</footer>
+
+</body>
+</html>
